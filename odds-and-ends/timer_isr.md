@@ -5,7 +5,7 @@ i.e. the frequency at which it reads sensor data and updates actuator commands.
 
 So how can we make our Arduino code run
 at a constant and _exact_ sample rate?
-Suppose we want to run our controller at 1 kHz sample rate, i.e. every 1 ms.
+Suppose we want to run our controller at 1&nbsp;kHz sample rate, i.e. every 1&nbsp;ms.
 A naïve approach would be to use the `delay()` function:
 
 ```c
@@ -43,16 +43,16 @@ This code works and we can measure the signal on pin 12 using a scope:
 ![delay](./images/timer_isr/delay.png)
 
 Unfortunately, we see that the floating-point computations need some time and
-the sample rate is not 1 kHz, but rather ≈830 Hz.
+the sample rate is not 1&nbsp;kHz, but rather ≈830&nbsp;Hz.
 One could tweak the delay value so that together with computation time it leads
-to exactly 1 ms period, but this is 1) very tiresome; 2) not possible if the computation
+to exactly 1&nbsp;ms period, but this is 1) very tiresome; 2) not possible if the computation
 time varies, e.g. when you have branching code;
 3) not portable across different microcontrollers.
 
-So what should we do? The answer is to use a hardware timer and an interrupt routine.
+So what should we do? The answer is to use a timer and
+a so called _interrupt service routine_ (ISR for short).
 The timer is an external hardware clock which runs independently from your code.
-We will configure it so that it will trigger execution of the so called
-_interrupt service routine_ (ISR for short) every 1 ms:
+We will configure it so that it will trigger execution of the ISR every 1&nbsp;ms:
 
 ```c
 int foo = 0;
@@ -99,7 +99,7 @@ void loop() {
 }
 ```
 
-Using the external timer leads to an exact and consistent sample rate:
+Using the hardware timer leads to an exact and consistent sample rate:
 
 ![timer](./images/timer_isr/timer.png)
 
