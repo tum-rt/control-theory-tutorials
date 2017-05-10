@@ -1,10 +1,11 @@
 # Using timer interrupts
 
-A discrete time controller is designed for a fixed _sample rate,_
+A discrete time controller is designed to process data at a specific _sample rate,_
 i.e. the frequency at which it reads sensor data and updates actuator commands.
 
-So how can we set a fixed sample rate using Arduino?
-Suppose we have a piece of code which should be run every 1 ms, i.e. at 1 kHz sample rate.
+So how can we make our Arduino code run
+at a constant and _exact_ sample rate?
+Suppose we want to run our controller at 1 kHz sample rate, i.e. every 1 ms.
 A naïve approach would be to use the `delay()` function:
 
 ```c
@@ -38,15 +39,20 @@ void loop() {
 ```
 
 This code works and we can measure the signal on pin 12 using a scope:
+
 ![delay](./images/timer_isr/delay.png)
 
 Unfortunately, we see that the floating-point computations need some time and
 the sample rate is not 1 kHz, but rather ≈830 Hz.
 One could tweak the delay value so that together with computation time it leads
 to exactly 1 ms period, but this is 1) very tiresome; 2) not possible if the computation
-time varies, e.g. when you have branching code.
+time varies, e.g. when you have branching code;
+3) not portable across different microcontrollers.
 
-So what should we do? The answer is to use a hardware timer and an interrupt routine:
+So what should we do? The answer is to use a hardware timer and an interrupt routine.
+The timer is an external hardware clock which runs independently from your code.
+We will configure it so that it will trigger execution of the so called
+_interrupt service routine_ (ISR for short) every 1 ms:
 
 ```c
 int foo = 0;
@@ -93,5 +99,19 @@ void loop() {
 }
 ```
 
-Using timer leads to an exact and consistent sample rate:
+Using the external timer leads to an exact and consistent sample rate:
+
 ![timer](./images/timer_isr/timer.png)
+
+
+### References
+
+* Your first reference should be the datasheet of your microcontroller,
+  e.g. [this one for ATmega 32U4](http://www.atmel.com/Images/Atmel-7766-8-bit-AVR-ATmega16U4-32U4_Datasheet.pdf)
+  (used in Arduino Micro).
+  For instance, configuration registers (`TCCR1A` & `TCCR1B`) are explained on pp. 131ff.
+* Macros used for defining interrupt routines are explained in the
+  [AVR-GCC documentation](http://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html).
+* You can also refer to these two introductory tutorials:
+    * [Arduino 101: Timers and Interrups](http://www.robotshop.com/letsmakerobots/arduino-101-timers-and-interrupts)
+    * [Timer Interrupts](https://learn.adafruit.com/multi-tasking-the-arduino-part-2/timers)
